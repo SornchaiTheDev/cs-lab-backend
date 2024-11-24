@@ -1,0 +1,7 @@
+# Environment variables
+.env
+docker/.env
+
+# Air tmp files
+tmp/
+
