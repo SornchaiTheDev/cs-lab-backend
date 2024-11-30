@@ -35,6 +35,6 @@ func (r *sqlxUserRepository) GetByEmail(email string) (*models.User, error) {
 		Roles:        user.Roles,
 		CreatedAt:    user.CreatedAt,
 		UpdatedAt:    user.UpdatedAt,
-		DeleteAt:     user.DeleteAt,
+		DeletedAt:    user.DeletedAt,
 	}, nil
 }
