@@ -7,7 +7,11 @@ import (
 )
 
 type Config struct {
-	DatabaseURL string `mapstructure:"DATABASE_URL"`
+	ApiURL             string `mapstructure:"API_URL"`
+	DatabaseURL        string `mapstructure:"DATABASE_URL"`
+	Port               string `mapstructure:"PORT"`
+	GoogleClientID     string `mapstructure:"GOOGLE_CLIENT_ID"`
+	GoogleClientSecret string `mapstructure:"GOOGLE_CLIENT_SECRET"`
 }
 
 func NewConfig() *Config {
@@ -16,6 +20,9 @@ func NewConfig() *Config {
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env")
 	viper.AddConfigPath(".")
+
+	// Default values
+	viper.SetDefault("PORT", "8080")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal("Error reading config file")
