@@ -5,6 +5,8 @@ import (
 	"log"
 
 	"github.com/SornchaiTheDev/cs-lab-backend/configs"
+	"github.com/SornchaiTheDev/cs-lab-backend/domain/services"
+	"github.com/SornchaiTheDev/cs-lab-backend/internal/adapters/sqlx"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest"
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,13 +15,16 @@ func main() {
 
 	config := configs.NewConfig()
 
-	_ = configs.NewDB(config)
+	db := configs.NewDB(config)
+
+	userRepo := sqlx.NewSqlxUserRepository(db)
+	userService := services.NewUserService(userRepo)
 
 	app := fiber.New()
 
 	api := app.Group("/api/v1")
 
-	rest.NewAuthRouter(api, config)
+	rest.NewAuthRouter(api, config, userService)
 
 	port := fmt.Sprintf(":%v", config.Port)
 
