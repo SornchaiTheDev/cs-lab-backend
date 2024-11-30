@@ -13,6 +13,9 @@ table "users" {
     type = uuid
     default = sql("gen_random_uuid()")
   }
+  column "email" {
+    type = text
+  }
   column "username" {
     type = varchar(255)
   }
@@ -28,10 +31,12 @@ table "users" {
   column "created_at" {
     type = timestamp
     null = false
+    default = sql("CURRENT_TIMESTAMP")
   }
   column "updated_at" {
     type = timestamp
     null = false
+    default = sql("CURRENT_TIMESTAMP")
   }
   column "deleted_at" {
     type = timestamp
