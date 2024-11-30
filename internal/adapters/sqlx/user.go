@@ -26,6 +26,7 @@ func (r *sqlxUserRepository) GetByEmail(email string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &models.User{
 		ID:           user.ID,
 		Email:        user.Email,
