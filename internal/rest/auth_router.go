@@ -12,6 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// TODO: redirect back to frontend and set cookie
 func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService services.UserService) {
 	authRouter := router.Group("/auth")
 
@@ -56,7 +57,15 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 
 		}
 
-		return c.JSON(user)
+		token, err := auth.SignJWT(user, appConfig.JWTSecret)
+		if err != nil {
+			return rerror.InternalServerError(c)
+		}
+
+		return c.JSON(fiber.Map{
+			"message": "OK",
+			"token":   token,
+		})
 	})
 
 	authRouter.Post("/sign-in/credential", ValidateMiddleware(&requests.Credential{}), func(c *fiber.Ctx) error {
