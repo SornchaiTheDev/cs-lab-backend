@@ -7,6 +7,7 @@ import (
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/services"
 	"github.com/SornchaiTheDev/cs-lab-backend/infrastructure/auth"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/requests"
+	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/middleware"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/rerror"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -68,7 +69,7 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 		})
 	})
 
-	authRouter.Post("/sign-in/credential", ValidateMiddleware(&requests.Credential{}), func(c *fiber.Ctx) error {
+	authRouter.Post("/sign-in/credential", middleware.ValidateMiddleware(&requests.Credential{}), func(c *fiber.Ctx) error {
 		credential := c.Locals("request").(*requests.Credential)
 
 		user, err := userService.GetByUsername(credential.Username)

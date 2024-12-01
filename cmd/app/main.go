@@ -8,6 +8,7 @@ import (
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/services"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/adapters/sqlx"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest"
+	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -25,6 +26,10 @@ func main() {
 	api := app.Group("/api/v1")
 
 	rest.NewAuthRouter(api, config, userService)
+
+	protectedApi := api.Group("/", middleware.ProtectedRouteMiddleware(config.JWTSecret))
+
+	rest.NewAdminRouter(protectedApi, userService)
 
 	port := fmt.Sprintf(":%v", config.Port)
 

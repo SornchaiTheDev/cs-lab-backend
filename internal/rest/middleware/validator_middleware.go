@@ -1,4 +1,4 @@
-package rest
+package middleware
 
 import (
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/validator"
