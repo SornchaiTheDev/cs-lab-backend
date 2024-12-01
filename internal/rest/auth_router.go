@@ -6,6 +6,7 @@ import (
 	"github.com/SornchaiTheDev/cs-lab-backend/configs"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/services"
 	"github.com/SornchaiTheDev/cs-lab-backend/infrastructure/auth"
+	"github.com/SornchaiTheDev/cs-lab-backend/internal/requests"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -53,10 +54,16 @@ func NewAuthRouter(router fiber.Router, c *configs.Config, userService services.
 
 		}
 
-		// token  := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		//
-		// })
-
 		return c.JSON(user)
 	})
+
+	authRouter.Post("/sign-in/credential", ValidateMiddleware(&requests.Credential{}), func(c *fiber.Ctx) error {
+		credential := c.Locals("request").(*requests.Credential)
+
+		return c.JSON(fiber.Map{
+			"message":  "OK",
+			"password": credential.Password,
+		})
+	})
+
 }
