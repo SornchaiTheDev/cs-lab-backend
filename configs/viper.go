@@ -12,6 +12,7 @@ type Config struct {
 	Port               string `mapstructure:"PORT"`
 	GoogleClientID     string `mapstructure:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string `mapstructure:"GOOGLE_CLIENT_SECRET"`
+	JWTSecret          string `mapstructure:"JWT_SECRET"`
 }
 
 func NewConfig() *Config {
@@ -25,11 +26,15 @@ func NewConfig() *Config {
 	viper.SetDefault("PORT", "8080")
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatal("Error reading config file")
+		log.Fatal("❌ Error reading config file")
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
-		log.Fatal("Unable to decode into struct")
+		log.Fatal("❌ Unable to decode into struct")
+	}
+
+	if config.JWTSecret == "" {
+		log.Fatal("❌ JWT_SECRET must be set")
 	}
 
 	return &config
