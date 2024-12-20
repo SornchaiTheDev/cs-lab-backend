@@ -74,7 +74,13 @@ func (r *sqlxUserRepository) GetPasswordByID(ID string) (string, error) {
 }
 
 func (r *sqlxUserRepository) GetPagination(page int, limit int, search string) ([]models.User, error) {
-	rows, err := r.db.Queryx("SELECT * FROM users")
+	rows, err := r.db.Queryx(`SELECT * FROM users 
+		WHERE username LIKE $1 
+		OR display_name LIKE $1 
+		OR email LIKE $1
+		OFFSET $2
+		LIMIT $3
+		`, "%"+search+"%", (page-1)*limit, limit)
 	if err != nil {
 		return nil, err
 	}
