@@ -72,3 +72,34 @@ func (r *sqlxUserRepository) GetPasswordByID(ID string) (string, error) {
 
 	return password, nil
 }
+
+func (r *sqlxUserRepository) GetPagination(page int, limit int, search string) ([]models.User, error) {
+	rows, err := r.db.Queryx("SELECT * FROM users")
+	if err != nil {
+		return nil, err
+	}
+
+	users := []models.User{}
+
+	for rows.Next() {
+		var user PostgresUser
+		err = rows.StructScan(&user)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, models.User{
+			ID:           user.ID,
+			Email:        user.Email,
+			Username:     user.Username,
+			DisplayName:  user.DisplayName,
+			ProfileImage: user.ProfileImage,
+			Roles:        user.Roles,
+			CreatedAt:    user.CreatedAt,
+			UpdatedAt:    user.UpdatedAt,
+			DeletedAt:    user.DeletedAt,
+		})
+	}
+
+	return users, nil
+}
