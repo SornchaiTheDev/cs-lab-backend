@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 
+	"github.com/SornchaiTheDev/cs-lab-backend/infrastructure/auth"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/rerror"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -25,17 +26,16 @@ func ProtectedRouteMiddleware(secret string) func(*fiber.Ctx) error {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			fmt.Println(claims["roles"].([]interface{}))
-			// user := &auth.JWTClaims{
-			// 	Sub:          claims["sub"].(string),
-			// 	DisplayName:  claims["displayName"].(string),
-			// 	ProfileImage: claims["profileImage"].(string),
-			// 	Iss:          claims["iss"].(string),
-			// 	Roles:        claims["roles"].([]string),
-			// 	Exp:          int64(claims["exp"].(float64)),
-			// }
-			//
-			// c.Locals("user", user)
+			user := &auth.JWTClaims{
+				Sub:          claims["sub"].(string),
+				DisplayName:  claims["displayName"].(string),
+				ProfileImage: claims["profileImage"].(string),
+				Iss:          claims["iss"].(string),
+				Roles:        claims["roles"].([]interface{}),
+				Exp:          int64(claims["exp"].(float64)),
+			}
+
+			c.Locals("user", user)
 		}
 
 		return c.Next()
