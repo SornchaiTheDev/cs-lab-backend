@@ -109,3 +109,16 @@ func (r *sqlxUserRepository) GetPagination(page int, limit int, search string) (
 
 	return users, nil
 }
+
+func (r *sqlxUserRepository) Count() (int, error) {
+	row := r.db.QueryRow("SELECT COUNT(*) FROM users")
+
+	var count int
+
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}

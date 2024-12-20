@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"fmt"
+	"math"
 	"strconv"
 
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/services"
@@ -30,12 +30,19 @@ func NewAdminRouter(router fiber.Router, userService services.UserService) {
 
 		users, err := userService.GetPagination(page, pageSize, search)
 		if err != nil {
-			fmt.Println(err)
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		count, err := userService.Count()
+		if err != nil {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
 		return c.JSON(fiber.Map{
-			"users": users,
+			"page":       page,
+			"total_page": math.Ceil(float64(count/pageSize) + 1),
+			"total_rows": count,
+			"users":      users,
 		})
 	})
 }

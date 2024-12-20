@@ -7,4 +7,5 @@ type UserRepository interface {
 	GetByUsername(username string) (*models.User, error)
 	GetPasswordByID(ID string) (string, error)
 	GetPagination(page int, limit int, search string) ([]models.User, error)
+	Count() (int, error)
 }
