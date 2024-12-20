@@ -23,9 +23,7 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 	authRouter.Get("/sign-in/google", func(c *fiber.Ctx) error {
 		url, err := googleAuth.GenerateAuthURL()
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": err,
-			})
+			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
 		return c.Redirect(url)
@@ -35,7 +33,7 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 	authRouter.Get("/sign-in/google/callback", func(c *fiber.Ctx) error {
 		state := c.Query("state")
 		if !googleAuth.VerifyState(state) {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"code": "INVALID_STATE"})
+			return rerror.ERR_UNAUTHORIZED
 		}
 
 		ctx := context.Background()
@@ -44,23 +42,17 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 
 		userInfo, err := googleAuth.GetUserInfo(ctx, code)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"code": "EXCHANGE_FAILED",
-			})
+			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
 		user, err := userService.GetByEmail(userInfo.Email)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"code": "USER_NOT_FOUND",
-				"err":  err.Error(),
-			})
-
+			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
 		token, err := auth.SignJWT(user, appConfig.JWTSecret)
 		if err != nil {
-			return rerror.InternalServerError(c)
+			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
 		return c.JSON(fiber.Map{
@@ -74,22 +66,22 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 
 		user, err := userService.GetByUsername(credential.Username)
 		if err != nil {
-			return rerror.Unauthorized(c)
+			return rerror.ERR_UNAUTHORIZED
 		}
 
 		password, err := userService.GetPasswordByID(user.ID)
 		if err != nil {
-			return rerror.Unauthorized(c)
+			return rerror.ERR_UNAUTHORIZED
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(password), []byte(credential.Password))
 		if err != nil {
-			return rerror.Unauthorized(c)
+			return rerror.ERR_UNAUTHORIZED
 		}
 
 		token, err := auth.SignJWT(user, appConfig.JWTSecret)
 		if err != nil {
-			return rerror.InternalServerError(c)
+			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
 		return c.JSON(fiber.Map{
