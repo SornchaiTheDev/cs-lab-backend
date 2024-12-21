@@ -16,7 +16,9 @@ type userRoutes struct {
 }
 
 func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
-	router.Get("/users", func(c *fiber.Ctx) error {
+	adminUserRouter := router.Group("/users")
+
+	adminUserRouter.Get("/", func(c *fiber.Ctx) error {
 		pageQuery := c.Query("page", "1")
 		pageSizeQuery := c.Query("pageSize", "10")
 		search := c.Query("search", "")
@@ -49,7 +51,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 		})
 	})
 
-	router.Post("/users/oauth", func(c *fiber.Ctx) error {
+	adminUserRouter.Post("/oauth", func(c *fiber.Ctx) error {
 		var userRequest requests.User
 
 		err := c.BodyParser(&userRequest)
@@ -65,7 +67,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 		return c.JSON(user)
 	})
 
-	router.Post("/users/credential", func(c *fiber.Ctx) error {
+	adminUserRouter.Post("/credential", func(c *fiber.Ctx) error {
 		var userRequest requests.CredentialUser
 
 		err := c.BodyParser(&userRequest)
@@ -103,7 +105,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 		return c.JSON(user)
 	})
 
-	router.Patch("/users/:userID", func(c *fiber.Ctx) error {
+	adminUserRouter.Patch("/:userID", func(c *fiber.Ctx) error {
 		var updateUser requests.User
 		err := c.BodyParser(&updateUser)
 		if err != nil {
@@ -118,7 +120,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 		return c.JSON(user)
 	})
 
-	router.Delete("/users/:userID", func(c *fiber.Ctx) error {
+	adminUserRouter.Delete("/:userID", func(c *fiber.Ctx) error {
 		err := userService.Delete(c.Context(), c.Params("userID"))
 		if err != nil {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
