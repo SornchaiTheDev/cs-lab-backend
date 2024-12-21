@@ -11,12 +11,12 @@ import (
 )
 
 type UserService interface {
-	GetByEmail(email string) (*models.User, error)
-	GetByUsername(username string) (*models.User, error)
+	GetByEmail(ctx context.Context, email string) (*models.User, error)
+	GetByUsername(ctx context.Context, username string) (*models.User, error)
 	GetByID(ctx context.Context, ID string) (*models.User, error)
-	GetPasswordByID(ID string) (string, error)
-	GetPagination(page int, limit int, search string) ([]models.User, error)
-	Count() (int, error)
+	GetPasswordByID(ctx context.Context, ID string) (string, error)
+	GetPagination(ctx context.Context, page int, limit int, search string) ([]models.User, error)
+	Count(ctx context.Context) (int, error)
 	Create(ctx context.Context, user *requests.CreateUser) (*models.User, error)
 	SetPassword(ctx context.Context, username string, password string) error
 }
@@ -29,28 +29,28 @@ func NewUserService(userRepository repositories.UserRepository) UserService {
 	return &userService{userRepository: userRepository}
 }
 
-func (s *userService) GetByEmail(email string) (*models.User, error) {
-	return s.userRepository.GetByEmail(email)
+func (s *userService) GetByEmail(ctx context.Context, email string) (*models.User, error) {
+	return s.userRepository.GetByEmail(ctx, email)
 }
 
-func (s *userService) GetByUsername(username string) (*models.User, error) {
-	return s.userRepository.GetByUsername(username)
+func (s *userService) GetByUsername(ctx context.Context, username string) (*models.User, error) {
+	return s.userRepository.GetByUsername(ctx, username)
 }
 
 func (s *userService) GetByID(ctx context.Context, ID string) (*models.User, error) {
 	return s.userRepository.GetByID(ctx, ID)
 }
 
-func (s *userService) GetPasswordByID(ID string) (string, error) {
-	return s.userRepository.GetPasswordByID(ID)
+func (s *userService) GetPasswordByID(ctx context.Context, ID string) (string, error) {
+	return s.userRepository.GetPasswordByID(ctx, ID)
 }
 
-func (s *userService) GetPagination(page int, limit int, search string) ([]models.User, error) {
-	return s.userRepository.GetPagination(page, limit, search)
+func (s *userService) GetPagination(ctx context.Context, page int, limit int, search string) ([]models.User, error) {
+	return s.userRepository.GetPagination(ctx, page, limit, search)
 }
 
-func (s *userService) Count() (int, error) {
-	return s.userRepository.Count()
+func (s *userService) Count(ctx context.Context) (int, error) {
+	return s.userRepository.Count(ctx)
 }
 
 func (s *userService) Create(ctx context.Context, user *requests.CreateUser) (*models.User, error) {

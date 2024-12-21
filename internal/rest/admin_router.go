@@ -29,12 +29,12 @@ func NewAdminRouter(router fiber.Router, userService services.UserService) {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
-		users, err := userService.GetPagination(page, pageSize, search)
+		users, err := userService.GetPagination(c.Context(), page, pageSize, search)
 		if err != nil {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
-		count, err := userService.Count()
+		count, err := userService.Count(c.Context())
 		if err != nil {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}

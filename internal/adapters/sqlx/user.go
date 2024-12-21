@@ -24,9 +24,9 @@ type PostgresUser struct {
 	Roles pq.StringArray `db:"roles"`
 }
 
-func (r *sqlxUserRepository) GetByEmail(email string) (*models.User, error) {
+func (r *sqlxUserRepository) GetByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user PostgresUser
-	err := r.db.Get(&user, "SELECT * FROM users WHERE email = $1", email)
+	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE email = $1", email)
 	if err != nil {
 		return nil, err
 	}
@@ -44,9 +44,9 @@ func (r *sqlxUserRepository) GetByEmail(email string) (*models.User, error) {
 	}, nil
 }
 
-func (r *sqlxUserRepository) GetByUsername(username string) (*models.User, error) {
+func (r *sqlxUserRepository) GetByUsername(ctx context.Context, username string) (*models.User, error) {
 	var user PostgresUser
-	err := r.db.Get(&user, "SELECT * FROM users WHERE username = $1", username)
+	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE username = $1", username)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +64,8 @@ func (r *sqlxUserRepository) GetByUsername(username string) (*models.User, error
 	}, nil
 }
 
-func (r *sqlxUserRepository) GetPasswordByID(ID string) (string, error) {
-	row := r.db.QueryRow("SELECT password FROM user_passwords WHERE user_id = $1", ID)
+func (r *sqlxUserRepository) GetPasswordByID(ctx context.Context, ID string) (string, error) {
+	row := r.db.QueryRowContext(ctx, "SELECT password FROM user_passwords WHERE user_id = $1", ID)
 	var password string
 
 	err := row.Scan(&password)
@@ -77,8 +77,8 @@ func (r *sqlxUserRepository) GetPasswordByID(ID string) (string, error) {
 	return password, nil
 }
 
-func (r *sqlxUserRepository) GetPagination(page int, limit int, search string) ([]models.User, error) {
-	rows, err := r.db.Queryx(`SELECT * FROM users 
+func (r *sqlxUserRepository) GetPagination(ctx context.Context, page int, limit int, search string) ([]models.User, error) {
+	rows, err := r.db.QueryxContext(ctx, `SELECT * FROM users 
 		WHERE (username LIKE $1 
 		OR display_name LIKE $1 
 		OR email LIKE $1)
@@ -115,8 +115,8 @@ func (r *sqlxUserRepository) GetPagination(page int, limit int, search string) (
 	return users, nil
 }
 
-func (r *sqlxUserRepository) Count() (int, error) {
-	row := r.db.QueryRow("SELECT COUNT(*) FROM users WHERE deleted_at IS NULL")
+func (r *sqlxUserRepository) Count(ctx context.Context) (int, error) {
+	row := r.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM users WHERE deleted_at IS NULL")
 
 	var count int
 

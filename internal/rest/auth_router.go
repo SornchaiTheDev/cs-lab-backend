@@ -45,7 +45,7 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
-		user, err := userService.GetByEmail(userInfo.Email)
+		user, err := userService.GetByEmail(c.Context(), userInfo.Email)
 		if err != nil {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
@@ -64,12 +64,12 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 	authRouter.Post("/sign-in/credential", middleware.ValidateMiddleware(&requests.Credential{}), func(c *fiber.Ctx) error {
 		credential := c.Locals("request").(*requests.Credential)
 
-		user, err := userService.GetByUsername(credential.Username)
+		user, err := userService.GetByUsername(c.Context(), credential.Username)
 		if err != nil {
 			return rerror.ERR_UNAUTHORIZED
 		}
 
-		password, err := userService.GetPasswordByID(user.ID)
+		password, err := userService.GetPasswordByID(c.Context(), user.ID)
 		if err != nil {
 			return rerror.ERR_UNAUTHORIZED
 		}

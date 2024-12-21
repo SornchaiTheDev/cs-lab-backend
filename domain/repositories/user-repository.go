@@ -8,12 +8,12 @@ import (
 )
 
 type UserRepository interface {
-	GetByEmail(email string) (*models.User, error)
-	GetByUsername(username string) (*models.User, error)
+	GetByEmail(ctx context.Context, email string) (*models.User, error)
+	GetByUsername(ctx context.Context, username string) (*models.User, error)
 	GetByID(ctx context.Context, ID string) (*models.User, error)
-	GetPasswordByID(ID string) (string, error)
-	GetPagination(page int, limit int, search string) ([]models.User, error)
-	Count() (int, error)
-	Create(c context.Context, user *requests.CreateUser) (*models.User, error)
-	SetPassword(c context.Context, username string, password string) error
+	GetPasswordByID(ctx context.Context, ID string) (string, error)
+	GetPagination(ctx context.Context, page int, limit int, search string) ([]models.User, error)
+	Count(ctx context.Context) (int, error)
+	Create(ctx context.Context, user *requests.CreateUser) (*models.User, error)
+	SetPassword(ctx context.Context, username string, password string) error
 }
