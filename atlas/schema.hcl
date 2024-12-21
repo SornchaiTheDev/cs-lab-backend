@@ -24,19 +24,22 @@ table "users" {
   }
   column "profile_image" {
     type = text
+    null = true
   }
   column "roles" {
     type = sql("role[]")
   }
   column "created_at" {
     type = timestamp
-    null = false
     default = sql("CURRENT_TIMESTAMP")
   }
   column "updated_at" {
     type = timestamp
-    null = false
     default = sql("CURRENT_TIMESTAMP")
+  }
+  column "is_deleted" {
+    type = boolean
+    default = false
   }
   column "deleted_at" {
     type = timestamp
@@ -45,8 +48,10 @@ table "users" {
   primary_key  {
     columns = [ column.id ]
   }
-  unique "username" {
-    columns = [ column.username, column.deleted_at ]
+  index "unique_active_username" {
+    columns = [ column.username ]
+    where = "is_deleted = false"
+    unique = true
   }
 }
 
