@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	GetByEmail(email string) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
+	GetByID(ctx context.Context, ID string) (*models.User, error)
 	GetPasswordByID(ID string) (string, error)
 	GetPagination(page int, limit int, search string) ([]models.User, error)
 	Count() (int, error)

@@ -90,4 +90,14 @@ func NewAdminRouter(router fiber.Router, userService services.UserService) {
 		return c.JSON(user)
 	})
 
+	adminRouter.Get("/users/:userID", func(c *fiber.Ctx) error {
+		userID := c.Params("userID")
+
+		user, err := userService.GetByID(c.Context(), userID)
+		if err != nil {
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		return c.JSON(user)
+	})
 }

@@ -177,3 +177,23 @@ func (r *sqlxUserRepository) SetPassword(ctx context.Context, username string, p
 
 	return nil
 }
+
+func (r *sqlxUserRepository) GetByID(ctx context.Context, ID string) (*models.User, error) {
+	var user PostgresUser
+	err := r.db.Get(&user, "SELECT * FROM users WHERE id = $1", ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.User{
+		ID:           user.ID,
+		Email:        user.Email,
+		Username:     user.Username,
+		DisplayName:  user.DisplayName,
+		ProfileImage: user.ProfileImage,
+		Roles:        user.Roles,
+		CreatedAt:    user.CreatedAt,
+		UpdatedAt:    user.UpdatedAt,
+		DeletedAt:    user.DeletedAt,
+	}, nil
+}

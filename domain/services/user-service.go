@@ -13,6 +13,7 @@ import (
 type UserService interface {
 	GetByEmail(email string) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
+	GetByID(ctx context.Context, ID string) (*models.User, error)
 	GetPasswordByID(ID string) (string, error)
 	GetPagination(page int, limit int, search string) ([]models.User, error)
 	Count() (int, error)
@@ -34,6 +35,10 @@ func (s *userService) GetByEmail(email string) (*models.User, error) {
 
 func (s *userService) GetByUsername(username string) (*models.User, error) {
 	return s.userRepository.GetByUsername(username)
+}
+
+func (s *userService) GetByID(ctx context.Context, ID string) (*models.User, error) {
+	return s.userRepository.GetByID(ctx, ID)
 }
 
 func (s *userService) GetPasswordByID(ID string) (string, error) {
