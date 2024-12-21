@@ -7,8 +7,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewAdminRouter(router fiber.Router, userService services.UserService) {
+func NewAdminRouter(router fiber.Router, userService services.UserService, semesterService services.SemesterService) {
 	adminRouter := router.Group("/admin", middleware.AdminMiddleware)
 
 	routes.NewAdminUserRoutes(adminRouter, userService)
+	routes.NewAdminSemesterRoutes(adminRouter, semesterService)
 }

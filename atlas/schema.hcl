@@ -194,6 +194,12 @@ table "section_tas" {
   }
 }
 
+
+enum "semester_type" {
+  schema = schema.public
+  values = [ "first" , "second" , "summer" ]
+}
+
 table "semesters" {
   schema = schema.public
   column "id" {
@@ -203,14 +209,35 @@ table "semesters" {
   column "name" {
     type = varchar(255)
   }
+  column "type" {
+    type = enum.semester_type
+  }
   column "started_date" {
     type = timestamp
+  }
+  column "created_at" {
+    type = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updated_at" {
+    type = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "is_deleted" {
+    type = boolean
+    default = false
+  }
+  column "deleted_at" {
+    type = timestamp
+    null = true
   }
   primary_key  {
     columns = [ column.id ]
   }
-  unique "semester_name" {
-    columns = [ column.name ]
+  index "unique_active_semester" {
+    columns = [ column.name, column.type ]
+    where = "is_deleted = false"
+    unique = true
   }
 }
 
