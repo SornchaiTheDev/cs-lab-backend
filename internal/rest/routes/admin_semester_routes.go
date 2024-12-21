@@ -1,6 +1,10 @@
 package routes
 
 import (
+	"fmt"
+	"math"
+	"strconv"
+
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/services"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/requests"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/middleware"
@@ -20,6 +24,40 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 		}
 
 		return c.Status(fiber.StatusCreated).JSON(createdSem)
+	})
+
+	semesterRouter.Get("/", func(c *fiber.Ctx) error {
+		pageQuery := c.Query("page", "1")
+		pageSizeQuery := c.Query("pageSize", "10")
+		search := c.Query("search", "")
+
+		page, err := strconv.Atoi(pageQuery)
+		if err != nil {
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		pageSize, err := strconv.Atoi(pageSizeQuery)
+		if err != nil {
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		sems, err := service.GetPagination(c.Context(), page, pageSize, search)
+		if err != nil {
+			fmt.Println(err)
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		count, err := service.Count(c.Context(), search)
+		if err != nil {
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		return c.JSON(fiber.Map{
+			"page":       page,
+			"total_page": math.Ceil(float64(count/pageSize) + 1),
+			"total_rows": count,
+			"semesters":  sems,
+		})
 	})
 
 }
