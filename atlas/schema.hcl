@@ -53,6 +53,11 @@ table "users" {
     where = "is_deleted = false"
     unique = true
   }
+  index "unique_active_email" {
+    columns = [ column.email ]
+    where = "is_deleted = false"
+    unique = true
+  }
 }
 
 table "user_passwords" {
