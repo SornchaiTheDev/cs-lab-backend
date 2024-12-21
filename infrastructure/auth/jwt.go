@@ -8,12 +8,10 @@ import (
 )
 
 type JWTClaims struct {
-	Sub          string        `json:"sub"`
 	DisplayName  string        `json:"displayName"`
-	ProfileImage string        `json:"profileImage"`
+	ProfileImage *string       `json:"profileImage"`
 	Roles        []interface{} `json:"roles"`
-	Iss          string        `json:"iss"`
-	Exp          int64         `json:"exp"`
+	jwt.RegisteredClaims
 }
 
 func SignJWT(user *models.User, secret string) (string, error) {
