@@ -249,6 +249,15 @@ func (r *sqlxUserRepository) Update(ctx context.Context, ID string, user *reques
 	}, nil
 }
 
+func (r *sqlxUserRepository) Delete(ctx context.Context, ID string) error {
+	_, err := r.db.ExecContext(ctx, "UPDATE users SET is_deleted = true, deleted_at = NOW() WHERE id = $1", ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func getUpdateFields(user *requests.User) string {
 	fields := []string{}
 	if user.Username != "" {

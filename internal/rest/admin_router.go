@@ -115,4 +115,13 @@ func NewAdminRouter(router fiber.Router, userService services.UserService) {
 
 		return c.JSON(user)
 	})
+
+	adminRouter.Delete("/users/:userID", func(c *fiber.Ctx) error {
+		err := userService.Delete(c.Context(), c.Params("userID"))
+		if err != nil {
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
+	})
 }

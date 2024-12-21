@@ -20,6 +20,7 @@ type UserService interface {
 	Create(ctx context.Context, user *requests.User) (*models.User, error)
 	SetPassword(ctx context.Context, username string, password string) error
 	Update(ctx context.Context, ID string, user *requests.User) (*models.User, error)
+	Delete(ctx context.Context, ID string) error
 }
 
 type userService struct {
@@ -74,4 +75,8 @@ func (s *userService) Update(ctx context.Context, ID string, user *requests.User
 	}
 
 	return updatedUser, nil
+}
+
+func (s *userService) Delete(ctx context.Context, ID string) error {
+	return s.userRepository.Delete(ctx, ID)
 }
