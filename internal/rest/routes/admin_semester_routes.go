@@ -19,7 +19,7 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
-		return c.JSON(createdSem)
+		return c.Status(fiber.StatusCreated).JSON(createdSem)
 	})
 
 }

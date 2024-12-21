@@ -64,7 +64,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
-		return c.JSON(user)
+		return c.Status(fiber.StatusCreated).JSON(user)
 	})
 
 	adminUserRouter.Post("/credential", func(c *fiber.Ctx) error {
@@ -91,7 +91,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
-		return c.JSON(user)
+		return c.Status(fiber.StatusCreated).JSON(user)
 	})
 
 	router.Get("/users/:userID", func(c *fiber.Ctx) error {
