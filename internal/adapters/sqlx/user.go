@@ -161,3 +161,19 @@ func (r *sqlxUserRepository) Create(ctx context.Context, user *requests.CreateUs
 		DeletedAt:    createdUser.DeletedAt,
 	}, nil
 }
+
+func (r *sqlxUserRepository) SetPassword(ctx context.Context, username string, password string) error {
+	query := `
+	INSERT INTO user_passwords (user_id,password)
+	VALUES ($1,$2)
+	ON CONFLICT (user_id) DO UPDATE
+	SET password = $2
+	`
+
+	_, err := r.db.ExecContext(ctx, query, username, password)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

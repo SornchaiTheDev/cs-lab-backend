@@ -14,5 +14,5 @@ type UserRepository interface {
 	GetPagination(page int, limit int, search string) ([]models.User, error)
 	Count() (int, error)
 	Create(c context.Context, user *requests.CreateUser) (*models.User, error)
-	// SetPassword(c context.Context, password string) (bool, error)
+	SetPassword(c context.Context, username string, password string) error
 }
