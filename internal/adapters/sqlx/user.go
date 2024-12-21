@@ -1,8 +1,12 @@
 package sqlx
 
 import (
+	"context"
+	"strings"
+
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/models"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/repositories"
+	"github.com/SornchaiTheDev/cs-lab-backend/internal/requests"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
@@ -122,4 +126,38 @@ func (r *sqlxUserRepository) Count() (int, error) {
 	}
 
 	return count, nil
+}
+
+func (r *sqlxUserRepository) Create(ctx context.Context, user *requests.CreateUser) (*models.User, error) {
+	createString := `
+		INSERT INTO users (
+			username,
+			display_name,
+			email,
+			roles
+		) VALUES ($1,$2,$3,string_to_array($4,',')::role[])
+		RETURNING *
+	`
+
+	createUser := r.db.QueryRowxContext(ctx, createString, user.Username, user.DisplayName, user.Email, strings.Join(user.Roles, ","))
+
+	var createdUser PostgresUser
+
+	err := createUser.StructScan(&createdUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.User{
+		ID:           createdUser.ID,
+		Email:        createdUser.Email,
+		Username:     createdUser.Username,
+		DisplayName:  createdUser.DisplayName,
+		ProfileImage: createdUser.ProfileImage,
+		Roles:        createdUser.Roles,
+		IsDeleted:    createdUser.IsDeleted,
+		CreatedAt:    createdUser.CreatedAt,
+		UpdatedAt:    createdUser.UpdatedAt,
+		DeletedAt:    createdUser.DeletedAt,
+	}, nil
 }

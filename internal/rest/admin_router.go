@@ -1,10 +1,12 @@
 package rest
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/services"
+	"github.com/SornchaiTheDev/cs-lab-backend/internal/requests"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/middleware"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/rerror"
 	"github.com/gofiber/fiber/v2"
@@ -44,5 +46,23 @@ func NewAdminRouter(router fiber.Router, userService services.UserService) {
 			"total_rows": count,
 			"users":      users,
 		})
+	})
+
+	adminRouter.Post("/users", func(c *fiber.Ctx) error {
+		var userRequest requests.CreateUser
+
+		err := c.BodyParser(&userRequest)
+		if err != nil {
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		user, err := userService.Create(c.Context(), &userRequest)
+		if err != nil {
+			fmt.Println(err)
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+
+		}
+
+		return c.JSON(user)
 	})
 }
