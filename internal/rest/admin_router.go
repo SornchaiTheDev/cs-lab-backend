@@ -48,7 +48,7 @@ func NewAdminRouter(router fiber.Router, userService services.UserService) {
 	})
 
 	adminRouter.Post("/users/oauth", func(c *fiber.Ctx) error {
-		var userRequest requests.CreateUser
+		var userRequest requests.User
 
 		err := c.BodyParser(&userRequest)
 		if err != nil {
@@ -64,14 +64,14 @@ func NewAdminRouter(router fiber.Router, userService services.UserService) {
 	})
 
 	adminRouter.Post("/users/credential", func(c *fiber.Ctx) error {
-		var userRequest requests.CreateCredentialUser
+		var userRequest requests.CredentialUser
 
 		err := c.BodyParser(&userRequest)
 		if err != nil {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
-		user, err := userService.Create(c.Context(), &requests.CreateUser{
+		user, err := userService.Create(c.Context(), &requests.User{
 			Username:    userRequest.Username,
 			DisplayName: userRequest.DisplayName,
 			Email:       userRequest.Email,
@@ -94,6 +94,21 @@ func NewAdminRouter(router fiber.Router, userService services.UserService) {
 		userID := c.Params("userID")
 
 		user, err := userService.GetByID(c.Context(), userID)
+		if err != nil {
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		return c.JSON(user)
+	})
+
+	adminRouter.Patch("/users/:userID", func(c *fiber.Ctx) error {
+		var updateUser requests.User
+		err := c.BodyParser(&updateUser)
+		if err != nil {
+			return rerror.ERR_BAD_REQUEST
+		}
+
+		user, err := userService.Update(c.Context(), c.Params("userID"), &updateUser)
 		if err != nil {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}

@@ -17,8 +17,9 @@ type UserService interface {
 	GetPasswordByID(ctx context.Context, ID string) (string, error)
 	GetPagination(ctx context.Context, page int, limit int, search string) ([]models.User, error)
 	Count(ctx context.Context) (int, error)
-	Create(ctx context.Context, user *requests.CreateUser) (*models.User, error)
+	Create(ctx context.Context, user *requests.User) (*models.User, error)
 	SetPassword(ctx context.Context, username string, password string) error
+	Update(ctx context.Context, ID string, user *requests.User) (*models.User, error)
 }
 
 type userService struct {
@@ -53,7 +54,7 @@ func (s *userService) Count(ctx context.Context) (int, error) {
 	return s.userRepository.Count(ctx)
 }
 
-func (s *userService) Create(ctx context.Context, user *requests.CreateUser) (*models.User, error) {
+func (s *userService) Create(ctx context.Context, user *requests.User) (*models.User, error) {
 	return s.userRepository.Create(ctx, user)
 }
 
@@ -64,4 +65,13 @@ func (s *userService) SetPassword(ctx context.Context, username string, password
 	}
 
 	return s.userRepository.SetPassword(ctx, username, string(hashedPassword))
+}
+
+func (s *userService) Update(ctx context.Context, ID string, user *requests.User) (*models.User, error) {
+	updatedUser, err := s.userRepository.Update(ctx, ID, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedUser, nil
 }

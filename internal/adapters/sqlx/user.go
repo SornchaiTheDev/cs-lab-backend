@@ -2,6 +2,7 @@ package sqlx
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/models"
@@ -128,7 +129,7 @@ func (r *sqlxUserRepository) Count(ctx context.Context) (int, error) {
 	return count, nil
 }
 
-func (r *sqlxUserRepository) Create(ctx context.Context, user *requests.CreateUser) (*models.User, error) {
+func (r *sqlxUserRepository) Create(ctx context.Context, user *requests.User) (*models.User, error) {
 	createString := `
 		INSERT INTO users (
 			username,
@@ -139,11 +140,11 @@ func (r *sqlxUserRepository) Create(ctx context.Context, user *requests.CreateUs
 		RETURNING *
 	`
 
-	createUser := r.db.QueryRowxContext(ctx, createString, user.Username, user.DisplayName, user.Email, strings.Join(user.Roles, ","))
+	User := r.db.QueryRowxContext(ctx, createString, user.Username, user.DisplayName, user.Email, strings.Join(user.Roles, ","))
 
 	var createdUser PostgresUser
 
-	err := createUser.StructScan(&createdUser)
+	err := User.StructScan(&createdUser)
 	if err != nil {
 		return nil, err
 	}
@@ -196,4 +197,72 @@ func (r *sqlxUserRepository) GetByID(ctx context.Context, ID string) (*models.Us
 		UpdatedAt:    user.UpdatedAt,
 		DeletedAt:    user.DeletedAt,
 	}, nil
+}
+
+type updateUser struct {
+	requests.User
+	ID string `db:"id"`
+}
+
+func (r *sqlxUserRepository) Update(ctx context.Context, ID string, user *requests.User) (*models.User, error) {
+	updateFields := getUpdateFields(user)
+
+	query := fmt.Sprintf(`
+	UPDATE users
+	SET %s
+	WHERE id = :id
+	RETURNING *
+	`, updateFields)
+
+	row, err := r.db.NamedQueryContext(ctx, query, &updateUser{
+		ID: ID,
+		User: requests.User{
+			Username:    user.Username,
+			DisplayName: user.DisplayName,
+			Email:       user.Email,
+			Roles:       user.Roles,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var updatedUser PostgresUser
+	for row.Next() {
+		err = row.StructScan(&updatedUser)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &models.User{
+		ID:           updatedUser.ID,
+		Email:        updatedUser.Email,
+		Username:     updatedUser.Username,
+		DisplayName:  updatedUser.DisplayName,
+		ProfileImage: updatedUser.ProfileImage,
+		Roles:        updatedUser.Roles,
+		IsDeleted:    updatedUser.IsDeleted,
+		CreatedAt:    updatedUser.CreatedAt,
+		UpdatedAt:    updatedUser.UpdatedAt,
+		DeletedAt:    updatedUser.DeletedAt,
+	}, nil
+}
+
+func getUpdateFields(user *requests.User) string {
+	fields := []string{}
+	if user.Username != "" {
+		fields = append(fields, "username = :username")
+	}
+	if user.DisplayName != "" {
+		fields = append(fields, "display_name = :display_name")
+	}
+	if user.Email != "" {
+		fields = append(fields, "email = :email")
+	}
+	if user.Roles != nil {
+		fields = append(fields, "roles = string_to_array(:roles, ',')::role[]")
+	}
+
+	return strings.Join(fields, ",")
 }
