@@ -116,8 +116,15 @@ func (r *sqlxUserRepository) GetPagination(ctx context.Context, page int, limit 
 	return users, nil
 }
 
-func (r *sqlxUserRepository) Count(ctx context.Context) (int, error) {
-	row := r.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM users WHERE deleted_at IS NULL")
+func (r *sqlxUserRepository) Count(ctx context.Context, search string) (int, error) {
+	query := `
+		SELECT COUNT(*) FROM users 
+		WHERE (username LIKE $1 
+		OR display_name LIKE $1 
+		OR email LIKE $1) AND
+	        deleted_at IS NULL
+	`
+	row := r.db.QueryRowContext(ctx, query, "%"+search+"%")
 
 	var count int
 

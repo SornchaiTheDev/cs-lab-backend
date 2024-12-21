@@ -38,7 +38,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
-		count, err := userService.Count(c.Context())
+		count, err := userService.Count(c.Context(), search)
 		if err != nil {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
