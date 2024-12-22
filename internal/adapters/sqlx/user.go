@@ -212,7 +212,10 @@ type updateUser struct {
 }
 
 func (r *sqlxUserRepository) Update(ctx context.Context, ID string, user *requests.User) (*models.User, error) {
-	updateFields := getUpdateFields(user)
+	updateFields, err := getUpdateFields(user)
+	if err != nil {
+		return nil, err
+	}
 
 	query := fmt.Sprintf(`
 	UPDATE users
@@ -220,6 +223,8 @@ func (r *sqlxUserRepository) Update(ctx context.Context, ID string, user *reques
 	WHERE id = :id
 	RETURNING *
 	`, updateFields)
+
+	fmt.Println(query)
 
 	row, err := r.db.NamedQueryContext(ctx, query, &updateUser{
 		ID: ID,
@@ -263,22 +268,4 @@ func (r *sqlxUserRepository) Delete(ctx context.Context, ID string) error {
 	}
 
 	return nil
-}
-
-func getUpdateFields(user *requests.User) string {
-	fields := []string{}
-	if user.Username != "" {
-		fields = append(fields, "username = :username")
-	}
-	if user.DisplayName != "" {
-		fields = append(fields, "display_name = :display_name")
-	}
-	if user.Email != "" {
-		fields = append(fields, "email = :email")
-	}
-	if user.Roles != nil {
-		fields = append(fields, "roles = string_to_array(:roles, ',')::role[]")
-	}
-
-	return strings.Join(fields, ",")
 }
