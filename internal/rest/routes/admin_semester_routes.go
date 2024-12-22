@@ -70,4 +70,28 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 		return c.JSON(sem)
 	})
 
+	semesterRouter.Patch("/:semID", func(c *fiber.Ctx) error {
+		ID := c.Params("semID")
+
+		var sem requests.Semester
+
+		err := c.BodyParser(&sem)
+		if err != nil {
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		updateSem, err := service.UpdateByID(c.Context(), ID, &sem)
+
+		return c.JSON(updateSem)
+	})
+
+	semesterRouter.Delete("/:semID", func(c *fiber.Ctx) error {
+		err := service.DeleteByID(c.Context(), c.Params("semID"))
+		if err != nil {
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
+	})
+
 }

@@ -2,7 +2,9 @@ package sqlx
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/SornchaiTheDev/cs-lab-backend/constants"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/models"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/repositories"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/requests"
@@ -96,4 +98,47 @@ func (r *sqlxSemesterRepository) GetByID(ctx context.Context, ID string) (*model
 	}
 
 	return &sem, nil
+}
+
+func (r *sqlxSemesterRepository) UpdateByID(ctx context.Context, ID string, sem *requests.Semester) (*models.Semester, error) {
+	updateFields, err := getUpdateFields(sem)
+	if err != nil {
+		return nil, err
+	}
+
+	query := fmt.Sprintf(`
+	UPDATE semesters
+	SET %s
+	WHERE id = :id
+	RETURNING *
+	`, updateFields)
+
+	row, err := r.db.NamedQueryContext(ctx, query, &models.Semester{
+		ID:        ID,
+		Name:      sem.Name,
+		StartDate: sem.StartedDate,
+		Type:      constants.SemesterType(sem.Type),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var updatedSem models.Semester
+	for row.Next() {
+		err = row.StructScan(&updatedSem)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &updatedSem, nil
+}
+
+func (r *sqlxSemesterRepository) DeleteByID(ctx context.Context, ID string) error {
+	_, err := r.db.ExecContext(ctx, "UPDATE semesters SET is_deleted = true, deleted_at = NOW() WHERE id = $1", ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

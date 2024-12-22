@@ -13,6 +13,8 @@ type SemesterService interface {
 	GetPagination(ctx context.Context, page int, limit int, search string) ([]models.Semester, error)
 	Count(ctx context.Context, search string) (int, error)
 	GetByID(ctx context.Context, ID string) (*models.Semester, error)
+	UpdateByID(ctx context.Context, ID string, sem *requests.Semester) (*models.Semester, error)
+	DeleteByID(ctx context.Context, ID string) error
 }
 
 type semesterService struct {
@@ -39,4 +41,12 @@ func (s *semesterService) Count(ctx context.Context, search string) (int, error)
 
 func (s *semesterService) GetByID(ctx context.Context, ID string) (*models.Semester, error) {
 	return s.repo.GetByID(ctx, ID)
+}
+
+func (s *semesterService) UpdateByID(ctx context.Context, ID string, sem *requests.Semester) (*models.Semester, error) {
+	return s.repo.UpdateByID(ctx, ID, sem)
+}
+
+func (s *semesterService) DeleteByID(ctx context.Context, ID string) error {
+	return s.repo.DeleteByID(ctx, ID)
 }
