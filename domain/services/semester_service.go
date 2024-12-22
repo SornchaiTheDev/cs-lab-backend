@@ -12,6 +12,7 @@ type SemesterService interface {
 	Create(ctx context.Context, sem *requests.Semester) (*models.Semester, error)
 	GetPagination(ctx context.Context, page int, limit int, search string) ([]models.Semester, error)
 	Count(ctx context.Context, search string) (int, error)
+	GetByID(ctx context.Context, ID string) (*models.Semester, error)
 }
 
 type semesterService struct {
@@ -34,4 +35,8 @@ func (s *semesterService) GetPagination(ctx context.Context, page int, limit int
 
 func (s *semesterService) Count(ctx context.Context, search string) (int, error) {
 	return s.repo.Count(ctx, search)
+}
+
+func (s *semesterService) GetByID(ctx context.Context, ID string) (*models.Semester, error) {
+	return s.repo.GetByID(ctx, ID)
 }

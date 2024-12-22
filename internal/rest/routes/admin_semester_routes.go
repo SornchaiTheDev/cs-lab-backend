@@ -60,4 +60,14 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 		})
 	})
 
+	semesterRouter.Get("/:semID", func(c *fiber.Ctx) error {
+		semID := c.Params("semID")
+		sem, err := service.GetByID(c.Context(), semID)
+		if err != nil {
+			return rerror.ERR_INTERNAL_SERVER_ERROR
+		}
+
+		return c.JSON(sem)
+	})
+
 }

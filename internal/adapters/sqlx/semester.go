@@ -84,3 +84,16 @@ func (r *sqlxSemesterRepository) Count(ctx context.Context, search string) (int,
 
 	return count, nil
 }
+
+func (r *sqlxSemesterRepository) GetByID(ctx context.Context, ID string) (*models.Semester, error) {
+	row := r.db.QueryRowxContext(ctx, "SELECT * FROM semesters WHERE id = $1", ID)
+
+	var sem models.Semester
+
+	err := row.StructScan(&sem)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sem, nil
+}
