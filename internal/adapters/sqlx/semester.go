@@ -108,7 +108,7 @@ func (r *sqlxSemesterRepository) UpdateByID(ctx context.Context, ID string, sem 
 
 	query := fmt.Sprintf(`
 	UPDATE semesters
-	SET %s
+	SET %s , updated_at = NOW()
 	WHERE id = :id
 	RETURNING *
 	`, updateFields)

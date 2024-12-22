@@ -219,7 +219,7 @@ func (r *sqlxUserRepository) Update(ctx context.Context, ID string, user *reques
 
 	query := fmt.Sprintf(`
 	UPDATE users
-	SET %s
+	SET %s , updated_at = NOW()
 	WHERE id = :id
 	RETURNING *
 	`, updateFields)
