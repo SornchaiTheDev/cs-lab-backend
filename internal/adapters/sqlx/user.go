@@ -224,8 +224,6 @@ func (r *sqlxUserRepository) Update(ctx context.Context, ID string, user *reques
 	RETURNING *
 	`, updateFields)
 
-	fmt.Println(query)
-
 	row, err := r.db.NamedQueryContext(ctx, query, &updateUser{
 		ID: ID,
 		User: requests.User{
