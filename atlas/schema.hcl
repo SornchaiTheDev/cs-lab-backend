@@ -96,6 +96,10 @@ table "courses" {
   column "updated_at" {
     type = timestamp
   }
+  column "is_deleted" {
+    type = boolean
+    default = false
+  }
   column "deleted_at" {
     type = timestamp
     null = true
@@ -107,8 +111,10 @@ table "courses" {
     columns = [ column.created_by ]
     ref_columns = [ table.users.column.id ]
   }
-  unique "course_name" {
+  index "unique_active_course" {
     columns = [ column.name ]
+    where = "is_deleted = false"
+    unique = true
   }
 }
 
