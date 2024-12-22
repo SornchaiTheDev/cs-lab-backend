@@ -39,9 +39,12 @@ func (r *sqlxUserRepository) GetByEmail(ctx context.Context, email string) (*mod
 		DisplayName:  user.DisplayName,
 		ProfileImage: user.ProfileImage,
 		Roles:        user.Roles,
-		CreatedAt:    user.CreatedAt,
-		UpdatedAt:    user.UpdatedAt,
-		DeletedAt:    user.DeletedAt,
+		RecordStatus: models.RecordStatus{
+			IsDeleted: user.IsDeleted,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+			DeletedAt: user.DeletedAt,
+		},
 	}, nil
 }
 
@@ -59,9 +62,12 @@ func (r *sqlxUserRepository) GetByUsername(ctx context.Context, username string)
 		DisplayName:  user.DisplayName,
 		ProfileImage: user.ProfileImage,
 		Roles:        user.Roles,
-		CreatedAt:    user.CreatedAt,
-		UpdatedAt:    user.UpdatedAt,
-		DeletedAt:    user.DeletedAt,
+		RecordStatus: models.RecordStatus{
+			IsDeleted: user.IsDeleted,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+			DeletedAt: user.DeletedAt,
+		},
 	}, nil
 }
 
@@ -107,9 +113,12 @@ func (r *sqlxUserRepository) GetPagination(ctx context.Context, page int, limit 
 			DisplayName:  user.DisplayName,
 			ProfileImage: user.ProfileImage,
 			Roles:        user.Roles,
-			CreatedAt:    user.CreatedAt,
-			UpdatedAt:    user.UpdatedAt,
-			DeletedAt:    user.DeletedAt,
+			RecordStatus: models.RecordStatus{
+				IsDeleted: user.IsDeleted,
+				CreatedAt: user.CreatedAt,
+				UpdatedAt: user.UpdatedAt,
+				DeletedAt: user.DeletedAt,
+			},
 		})
 	}
 
@@ -163,10 +172,12 @@ func (r *sqlxUserRepository) Create(ctx context.Context, user *requests.User) (*
 		DisplayName:  createdUser.DisplayName,
 		ProfileImage: createdUser.ProfileImage,
 		Roles:        createdUser.Roles,
-		IsDeleted:    createdUser.IsDeleted,
-		CreatedAt:    createdUser.CreatedAt,
-		UpdatedAt:    createdUser.UpdatedAt,
-		DeletedAt:    createdUser.DeletedAt,
+		RecordStatus: models.RecordStatus{
+			IsDeleted: createdUser.IsDeleted,
+			CreatedAt: createdUser.CreatedAt,
+			UpdatedAt: createdUser.UpdatedAt,
+			DeletedAt: createdUser.DeletedAt,
+		},
 	}, nil
 }
 
@@ -200,9 +211,12 @@ func (r *sqlxUserRepository) GetByID(ctx context.Context, ID string) (*models.Us
 		DisplayName:  user.DisplayName,
 		ProfileImage: user.ProfileImage,
 		Roles:        user.Roles,
-		CreatedAt:    user.CreatedAt,
-		UpdatedAt:    user.UpdatedAt,
-		DeletedAt:    user.DeletedAt,
+		RecordStatus: models.RecordStatus{
+			IsDeleted: user.IsDeleted,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+			DeletedAt: user.DeletedAt,
+		},
 	}, nil
 }
 
@@ -252,10 +266,12 @@ func (r *sqlxUserRepository) Update(ctx context.Context, ID string, user *reques
 		DisplayName:  updatedUser.DisplayName,
 		ProfileImage: updatedUser.ProfileImage,
 		Roles:        updatedUser.Roles,
-		IsDeleted:    updatedUser.IsDeleted,
-		CreatedAt:    updatedUser.CreatedAt,
-		UpdatedAt:    updatedUser.UpdatedAt,
-		DeletedAt:    updatedUser.DeletedAt,
+		RecordStatus: models.RecordStatus{
+			IsDeleted: updatedUser.IsDeleted,
+			CreatedAt: updatedUser.CreatedAt,
+			UpdatedAt: updatedUser.UpdatedAt,
+			DeletedAt: updatedUser.DeletedAt,
+		},
 	}, nil
 }
 
