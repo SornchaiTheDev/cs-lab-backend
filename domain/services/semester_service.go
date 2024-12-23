@@ -10,7 +10,7 @@ import (
 
 type SemesterService interface {
 	Create(ctx context.Context, sem *requests.Semester) (*models.Semester, error)
-	GetPagination(ctx context.Context, page int, limit int, search string) ([]models.Semester, error)
+	GetPagination(ctx context.Context, page int, limit int, search string, sortBy string, sortOrder string) ([]models.Semester, error)
 	Count(ctx context.Context, search string) (int, error)
 	GetByID(ctx context.Context, ID string) (*models.Semester, error)
 	UpdateByID(ctx context.Context, ID string, sem *requests.Semester) (*models.Semester, error)
@@ -31,8 +31,16 @@ func (s *semesterService) Create(ctx context.Context, sem *requests.Semester) (*
 	return s.repo.Create(ctx, sem)
 }
 
-func (s *semesterService) GetPagination(ctx context.Context, page int, limit int, search string) ([]models.Semester, error) {
-	return s.repo.GetPagination(ctx, page, limit, search)
+func (s *semesterService) GetPagination(ctx context.Context, page int, limit int, search string, sortBy string, sortOrder string) ([]models.Semester, error) {
+	sanitizedSortBy, err := sanitizeSortBy(sortBy, &models.User{})
+	if err != nil {
+		return nil, err
+	}
+
+	sanitizedSortOrder := sanitizeSortOrder(sortOrder)
+
+	return s.repo.GetPagination(ctx, page, limit, search, sanitizedSortOrder, sanitizedSortBy)
+
 }
 
 func (s *semesterService) Count(ctx context.Context, search string) (int, error) {

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 
@@ -22,6 +23,8 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 		pageQuery := c.Query("page", "1")
 		pageSizeQuery := c.Query("pageSize", "10")
 		search := c.Query("search", "")
+		sortBy := c.Query("sort_by", "created_at")
+		sortOrder := c.Query("sort_order", "desc")
 
 		page, err := strconv.Atoi(pageQuery)
 		if err != nil {
@@ -33,7 +36,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
 
-		users, err := userService.GetPagination(c.Context(), page, pageSize, search)
+		users, err := userService.GetPagination(c.Context(), page, pageSize, search, sortBy, sortOrder)
 		if err != nil {
 			return rerror.ERR_INTERNAL_SERVER_ERROR
 		}
@@ -44,10 +47,12 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 		}
 
 		return c.JSON(fiber.Map{
-			"page":       page,
-			"total_page": math.Ceil(float64(count/pageSize) + 1),
-			"total_rows": count,
-			"users":      users,
+			"pagination": fiber.Map{
+				"page":       page,
+				"total_page": math.Ceil(float64(count/pageSize) + 1),
+				"total_rows": count,
+			},
+			"users": users,
 		})
 	})
 

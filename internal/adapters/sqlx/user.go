@@ -84,15 +84,18 @@ func (r *sqlxUserRepository) GetPasswordByID(ctx context.Context, ID string) (st
 	return password, nil
 }
 
-func (r *sqlxUserRepository) GetPagination(ctx context.Context, page int, limit int, search string) ([]models.User, error) {
-	rows, err := r.db.QueryxContext(ctx, `SELECT * FROM users 
+func (r *sqlxUserRepository) GetPagination(ctx context.Context, page int, limit int, search string, sortBy string, sortOrder string) ([]models.User, error) {
+	query := fmt.Sprintf(`SELECT * FROM users 
 		WHERE (username LIKE $1 
 		OR display_name LIKE $1 
 		OR email LIKE $1)
 		AND deleted_at IS NULL
+		ORDER BY %s %s
 		OFFSET $2
 		LIMIT $3
-		`, "%"+search+"%", (page-1)*limit, limit)
+		`, sortBy, sortOrder)
+
+	rows, err := r.db.QueryxContext(ctx, query, "%"+search+"%", (page-1)*limit, limit)
 	if err != nil {
 		return nil, err
 	}

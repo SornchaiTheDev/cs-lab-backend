@@ -15,7 +15,7 @@ type UserService interface {
 	GetByUsername(ctx context.Context, username string) (*models.User, error)
 	GetByID(ctx context.Context, ID string) (*models.User, error)
 	GetPasswordByID(ctx context.Context, ID string) (string, error)
-	GetPagination(ctx context.Context, page int, limit int, search string) ([]models.User, error)
+	GetPagination(ctx context.Context, page int, limit int, search string, sortBy string, sortOrder string) ([]models.User, error)
 	Count(ctx context.Context, search string) (int, error)
 	Create(ctx context.Context, user *requests.User) (*models.User, error)
 	SetPassword(ctx context.Context, username string, password string) error
@@ -47,8 +47,16 @@ func (s *userService) GetPasswordByID(ctx context.Context, ID string) (string, e
 	return s.userRepository.GetPasswordByID(ctx, ID)
 }
 
-func (s *userService) GetPagination(ctx context.Context, page int, limit int, search string) ([]models.User, error) {
-	return s.userRepository.GetPagination(ctx, page, limit, search)
+func (s *userService) GetPagination(ctx context.Context, page int, limit int, search string, sortBy string, sortOrder string) ([]models.User, error) {
+	sanitizedSortBy, err := sanitizeSortBy(sortBy, &models.User{})
+	if err != nil {
+		return nil, err
+	}
+
+	sanitizedSortOrder := sanitizeSortOrder(sortOrder)
+
+	return s.userRepository.GetPagination(ctx, page, limit, search, sanitizedSortBy, sanitizedSortOrder)
+
 }
 
 func (s *userService) Count(ctx context.Context, search string) (int, error) {

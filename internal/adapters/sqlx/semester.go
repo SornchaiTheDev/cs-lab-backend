@@ -40,15 +40,18 @@ func (r *sqlxSemesterRepository) Create(ctx context.Context, sem *requests.Semes
 
 }
 
-func (r *sqlxSemesterRepository) GetPagination(ctx context.Context, page int, limit int, search string) ([]models.Semester, error) {
-	rows, err := r.db.QueryxContext(ctx, `SELECT * FROM semesters 
+func (r *sqlxSemesterRepository) GetPagination(ctx context.Context, page int, limit int, search string, sortBy string, sortOrder string) ([]models.Semester, error) {
+	query := fmt.Sprintf(`SELECT * FROM semesters 
 		WHERE (name LIKE $1 
 		OR type::text LIKE $1
 		OR DATE(started_date)::text = $1)
 		AND deleted_at IS NULL
+		ORDER BY %s %s
 		OFFSET $2
 		LIMIT $3
-		`, "%"+search+"%", (page-1)*limit, limit)
+		`, sortBy, sortOrder)
+
+	rows, err := r.db.QueryxContext(ctx, query, "%"+search+"%", (page-1)*limit, limit)
 	if err != nil {
 		return nil, err
 	}
