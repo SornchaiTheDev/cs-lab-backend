@@ -9,9 +9,6 @@ import (
 )
 
 func getUpdateFields(s any) (string, error) {
-	fields := []string{}
-
-	val := reflect.ValueOf(s)
 	typ := reflect.TypeOf(s)
 
 	if typ.Kind() != reflect.Pointer {
@@ -21,29 +18,45 @@ func getUpdateFields(s any) (string, error) {
 		return "", errors.New("The argument that you passed is not a pointer")
 	}
 
-	for i := 0; i < val.Elem().NumField(); i++ {
-		field := typ.Elem().Field(i)
-		value := val.Elem().Field(i)
+	fields := getAllStructFields(s)
+
+	return strings.Join(fields, ","), nil
+}
+
+func getAllStructFields(s any) []string {
+	typ := reflect.TypeOf(s)
+	val := reflect.ValueOf(s)
+	keys := make([]string, 0)
+
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+		val = val.Elem()
+	}
+
+	for i := 0; i < val.NumField(); i++ {
+		field := typ.Field(i)
+		value := val.Field(i)
 
 		if value.IsValid() && !value.IsZero() {
 			key := field.Tag.Get("db")
 			if field.Type.Kind() == reflect.Slice {
-				r, err := regexp.Compile("(.*)(s|sh|ch|x|z|es|ies)$")
-				if err != nil {
-					return "", err
-				}
+				r := regexp.MustCompile("(.*)(s|sh|ch|x|z|es|ies)$")
 
 				arrTyp := key
 				if r.MatchString(key) {
 					arrTyp = r.FindStringSubmatch(key)[1]
 				}
 
-				fields = append(fields, fmt.Sprintf("%s = string_to_array(:%s, ',')::%s[]", key, key, arrTyp))
+				keys = append(keys, fmt.Sprintf("%s = string_to_array(:%s, ',')::%s[]", key, key, arrTyp))
 				continue
 			}
-			fields = append(fields, fmt.Sprintf("%s = :%s", key, key))
+			keys = append(keys, fmt.Sprintf("%s = :%s", key, key))
+		}
+
+		if field.Anonymous {
+			keys = append(keys, getAllStructFields(value.Field(i).Interface())...)
 		}
 	}
 
-	return strings.Join(fields, ","), nil
+	return keys
 }
