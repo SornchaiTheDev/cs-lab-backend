@@ -39,7 +39,7 @@ func (s *semesterService) GetPagination(ctx context.Context, page int, limit int
 
 	sanitizedSortOrder := sanitizeSortOrder(sortOrder)
 
-	return s.repo.GetPagination(ctx, page, limit, search, sanitizedSortOrder, sanitizedSortBy)
+	return s.repo.GetPagination(ctx, page, limit, search, sanitizedSortBy, sanitizedSortOrder)
 
 }
 
