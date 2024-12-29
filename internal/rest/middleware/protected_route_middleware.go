@@ -22,7 +22,7 @@ func ProtectedRouteMiddleware(secret string) func(*fiber.Ctx) error {
 		})
 
 		if err != nil {
-			return rerror.ERR_UNAUTHORIZED
+			return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
 		}
 
 		if claims, ok := token.Claims.(*auth.JWTClaims); ok {
@@ -30,6 +30,6 @@ func ProtectedRouteMiddleware(secret string) func(*fiber.Ctx) error {
 			return c.Next()
 		}
 
-		return rerror.ERR_INTERNAL_SERVER_ERROR
+		return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
 	}
 }

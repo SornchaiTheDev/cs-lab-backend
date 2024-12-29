@@ -16,5 +16,5 @@ func AdminMiddleware(c *fiber.Ctx) error {
 		}
 	}
 
-	return rerror.ERR_UNAUTHORIZED
+	return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
 }

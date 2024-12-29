@@ -1,18 +1,18 @@
 package rerror
 
 import (
-	"errors"
-
 	"github.com/gofiber/fiber/v2"
 )
 
+type RespError string
+
 var (
-	ERR_BAD_REQUEST           = errors.New("Bad Request")
-	ERR_UNAUTHORIZED          = errors.New("Unauthorized")
-	ERR_INTERNAL_SERVER_ERROR = errors.New("Internal Server Error")
+	ERR_BAD_REQUEST           RespError = "Bad Request"
+	ERR_UNAUTHORIZED          RespError = "Unauthorized"
+	ERR_INTERNAL_SERVER_ERROR RespError = "Internal Server Error"
 )
 
-func MapErrorWithFiberStatus(err error) int {
+func MapErrorWithFiberStatus(err RespError) int {
 	switch err {
 	case ERR_BAD_REQUEST:
 		return fiber.StatusBadRequest
