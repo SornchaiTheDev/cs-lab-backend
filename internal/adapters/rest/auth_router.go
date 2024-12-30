@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/SornchaiTheDev/cs-lab-backend/configs"
+	"github.com/SornchaiTheDev/cs-lab-backend/domain/cserrors"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/services"
 	"github.com/SornchaiTheDev/cs-lab-backend/infrastructure/auth"
+	"github.com/SornchaiTheDev/cs-lab-backend/internal/adapters/middlewares"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/requests"
-	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/middleware"
-	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/rerror"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -23,7 +23,7 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 	authRouter.Get("/sign-in/google", func(c *fiber.Ctx) error {
 		url, err := googleAuth.GenerateAuthURL()
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error generating auth url")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error generating auth url"}
 		}
 
 		return c.Redirect(url)
@@ -33,7 +33,7 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 	authRouter.Get("/sign-in/google/callback", func(c *fiber.Ctx) error {
 		state := c.Query("state")
 		if !googleAuth.VerifyState(state) {
-			return rerror.Res(c, rerror.ERR_BAD_REQUEST, "Invalid state")
+			return &cserrors.Error{Code: cserrors.BAD_REQUEST, Message: "Invalid State"}
 		}
 
 		ctx := context.Background()
@@ -42,17 +42,17 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 
 		userInfo, err := googleAuth.GetUserInfo(ctx, code)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error getting user info")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error getting user info"}
 		}
 
 		user, err := userService.GetByEmail(c.Context(), userInfo.Email)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
+			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
 		}
 
 		token, err := auth.SignJWT(user, appConfig.JWTSecret)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error signing JWT")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error signing JWT"}
 		}
 
 		return c.JSON(fiber.Map{
@@ -61,27 +61,27 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 		})
 	})
 
-	authRouter.Post("/sign-in/credential", middleware.ValidateMiddleware(&requests.Credential{}), func(c *fiber.Ctx) error {
+	authRouter.Post("/sign-in/credential", middlewares.ValidateMiddleware(&requests.Credential{}), func(c *fiber.Ctx) error {
 		credential := c.Locals("request").(*requests.Credential)
 
 		user, err := userService.GetByUsername(c.Context(), credential.Username)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
+			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
 		}
 
 		password, err := userService.GetPasswordByID(c.Context(), user.ID)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
+			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(password), []byte(credential.Password))
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
+			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
 		}
 
 		token, err := auth.SignJWT(user, appConfig.JWTSecret)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
+			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
 		}
 
 		return c.JSON(fiber.Map{

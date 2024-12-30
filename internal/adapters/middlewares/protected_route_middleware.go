@@ -1,10 +1,10 @@
-package middleware
+package middlewares
 
 import (
 	"fmt"
 
+	"github.com/SornchaiTheDev/cs-lab-backend/domain/cserrors"
 	"github.com/SornchaiTheDev/cs-lab-backend/infrastructure/auth"
-	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/rerror"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -22,7 +22,7 @@ func ProtectedRouteMiddleware(secret string) func(*fiber.Ctx) error {
 		})
 
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
+			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
 		}
 
 		if claims, ok := token.Claims.(*auth.JWTClaims); ok {
@@ -30,6 +30,6 @@ func ProtectedRouteMiddleware(secret string) func(*fiber.Ctx) error {
 			return c.Next()
 		}
 
-		return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
+		return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
 	}
 }

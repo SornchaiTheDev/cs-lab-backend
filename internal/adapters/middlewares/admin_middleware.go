@@ -1,9 +1,9 @@
-package middleware
+package middlewares
 
 import (
 	"github.com/SornchaiTheDev/cs-lab-backend/constants"
+	"github.com/SornchaiTheDev/cs-lab-backend/domain/cserrors"
 	"github.com/SornchaiTheDev/cs-lab-backend/infrastructure/auth"
-	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/rerror"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -16,5 +16,5 @@ func AdminMiddleware(c *fiber.Ctx) error {
 		}
 	}
 
-	return rerror.Res(c, rerror.ERR_UNAUTHORIZED, "Unauthorized")
+	return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
 }

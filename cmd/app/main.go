@@ -6,14 +6,13 @@ import (
 
 	"github.com/SornchaiTheDev/cs-lab-backend/configs"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/services"
+	"github.com/SornchaiTheDev/cs-lab-backend/internal/adapters/middlewares"
+	"github.com/SornchaiTheDev/cs-lab-backend/internal/adapters/rest"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/adapters/sqlx"
-	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest"
-	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-
 	config := configs.NewConfig()
 
 	db := configs.NewDB(config)
@@ -24,13 +23,15 @@ func main() {
 	semesterRepo := sqlx.NewSqlxSemesterRepository(db)
 	semesterService := services.NewSemesterService(semesterRepo)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: middlewares.ErrorHandler,
+	})
 
 	api := app.Group("/api/v1")
 
 	rest.NewAuthRouter(api, config, userService)
 
-	protectedApi := api.Group("/", middleware.ProtectedRouteMiddleware(config.JWTSecret))
+	protectedApi := api.Group("/", middlewares.ProtectedRouteMiddleware(config.JWTSecret))
 
 	rest.NewAdminRouter(protectedApi, userService, semesterService)
 

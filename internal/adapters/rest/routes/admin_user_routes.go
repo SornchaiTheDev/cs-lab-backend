@@ -4,9 +4,9 @@ import (
 	"math"
 	"strconv"
 
+	"github.com/SornchaiTheDev/cs-lab-backend/domain/cserrors"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/services"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/requests"
-	"github.com/SornchaiTheDev/cs-lab-backend/internal/rest/rerror"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -27,22 +27,22 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 
 		page, err := strconv.Atoi(pageQuery)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_BAD_REQUEST, "Invalid page")
+			return &cserrors.Error{Code: cserrors.BAD_REQUEST, Message: "Invalid page"}
 		}
 
 		pageSize, err := strconv.Atoi(pageSizeQuery)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_BAD_REQUEST, "Invalid page")
+			return &cserrors.Error{Code: cserrors.BAD_REQUEST, Message: "Invalid page size"}
 		}
 
 		users, err := userService.GetPagination(c.Context(), page, pageSize, search, sortBy, sortOrder)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_BAD_REQUEST, "Invalid page")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error getting users"}
 		}
 
 		count, err := userService.Count(c.Context(), search)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_BAD_REQUEST, "Invalid page")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error getting users count"}
 		}
 
 		return c.JSON(fiber.Map{
@@ -60,12 +60,12 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 
 		err := c.BodyParser(&userRequest)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error parsing request")
+			return &cserrors.Error{Code: cserrors.BAD_REQUEST, Message: "Error parsing request"}
 		}
 
 		user, err := userService.Create(c.Context(), &userRequest)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error creating user")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error creating user"}
 		}
 
 		return c.Status(fiber.StatusCreated).JSON(user)
@@ -76,7 +76,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 
 		err := c.BodyParser(&userRequest)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error parsing request")
+			return &cserrors.Error{Code: cserrors.BAD_REQUEST, Message: "Error parsing request"}
 		}
 
 		user, err := userService.Create(c.Context(), &requests.User{
@@ -86,13 +86,13 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 			Roles:       userRequest.Roles,
 		})
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error creating user")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error creating user"}
 		}
 
 		err = userService.SetPassword(c.Context(), user.ID, userRequest.Password)
 
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error creating user")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error creating user"}
 		}
 
 		return c.Status(fiber.StatusCreated).JSON(user)
@@ -103,7 +103,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 
 		user, err := userService.GetByID(c.Context(), userID)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error getting user")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error getting user"}
 		}
 
 		return c.JSON(user)
@@ -113,12 +113,12 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 		var updateUser requests.User
 		err := c.BodyParser(&updateUser)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_BAD_REQUEST, "Invalid request body")
+			return &cserrors.Error{Code: cserrors.BAD_REQUEST, Message: "Invalid request body"}
 		}
 
 		user, err := userService.Update(c.Context(), c.Params("userID"), &updateUser)
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error updating user")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error updating user"}
 		}
 
 		return c.JSON(user)
@@ -127,7 +127,7 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 	adminUserRouter.Delete("/:userID", func(c *fiber.Ctx) error {
 		err := userService.Delete(c.Context(), c.Params("userID"))
 		if err != nil {
-			return rerror.Res(c, rerror.ERR_INTERNAL_SERVER_ERROR, "Error deleting user")
+			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error deleting user"}
 		}
 
 		return c.SendStatus(fiber.StatusNoContent)
