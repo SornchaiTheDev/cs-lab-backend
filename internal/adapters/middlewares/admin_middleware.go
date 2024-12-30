@@ -16,5 +16,5 @@ func AdminMiddleware(c *fiber.Ctx) error {
 		}
 	}
 
-	return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
+	return cserrors.New(cserrors.UNAUTHORIZED, "Unauthorized")
 }

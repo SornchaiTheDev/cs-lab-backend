@@ -19,7 +19,7 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 
 		createdSem, err := service.Create(c.Context(), sem)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error creating semester"}
+			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error creating semester")
 		}
 
 		return c.Status(fiber.StatusCreated).JSON(createdSem)
@@ -34,22 +34,22 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 
 		page, err := strconv.Atoi(pageQuery)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.BAD_REQUEST, Message: "Invalid page"}
+			return cserrors.New(cserrors.BAD_REQUEST, "Invalid page")
 		}
 
 		pageSize, err := strconv.Atoi(pageSizeQuery)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.BAD_REQUEST, Message: "Invalid page size"}
+			return cserrors.New(cserrors.BAD_REQUEST, "Invalid page size")
 		}
 
 		sems, err := service.GetPagination(c.Context(), page, pageSize, search, sortBy, sortOrder)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error getting semesters"}
+			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error getting semesters")
 		}
 
 		count, err := service.Count(c.Context(), search)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error getting semesters count"}
+			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error getting semesters count")
 		}
 
 		return c.JSON(fiber.Map{
@@ -66,7 +66,7 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 		semID := c.Params("semID")
 		sem, err := service.GetByID(c.Context(), semID)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error getting semester"}
+			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error getting semester")
 		}
 
 		return c.JSON(sem)
@@ -79,10 +79,13 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 
 		err := c.BodyParser(&sem)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.BAD_REQUEST, Message: "Error parsing request"}
+			return cserrors.New(cserrors.BAD_REQUEST, "Error parsing request")
 		}
 
 		updateSem, err := service.UpdateByID(c.Context(), ID, &sem)
+		if err != nil {
+			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error updating semester")
+		}
 
 		return c.JSON(updateSem)
 	})
@@ -90,7 +93,7 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 	semesterRouter.Delete("/:semID", func(c *fiber.Ctx) error {
 		err := service.DeleteByID(c.Context(), c.Params("semID"))
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error deleting semester"}
+			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error deleting semester")
 		}
 
 		return c.SendStatus(fiber.StatusNoContent)

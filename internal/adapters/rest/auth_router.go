@@ -23,7 +23,7 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 	authRouter.Get("/sign-in/google", func(c *fiber.Ctx) error {
 		url, err := googleAuth.GenerateAuthURL()
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error generating auth url"}
+			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error generating auth url")
 		}
 
 		return c.Redirect(url)
@@ -33,7 +33,7 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 	authRouter.Get("/sign-in/google/callback", func(c *fiber.Ctx) error {
 		state := c.Query("state")
 		if !googleAuth.VerifyState(state) {
-			return &cserrors.Error{Code: cserrors.BAD_REQUEST, Message: "Invalid State"}
+			return cserrors.New(cserrors.BAD_REQUEST, "Invalid State")
 		}
 
 		ctx := context.Background()
@@ -42,17 +42,17 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 
 		userInfo, err := googleAuth.GetUserInfo(ctx, code)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error getting user info"}
+			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error getting user info")
 		}
 
 		user, err := userService.GetByEmail(c.Context(), userInfo.Email)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
+			return cserrors.New(cserrors.UNAUTHORIZED, "Unauthorized")
 		}
 
 		token, err := auth.SignJWT(user, appConfig.JWTSecret)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.INTERNAL_SERVER_ERROR, Message: "Error signing JWT"}
+			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error signing JWT")
 		}
 
 		return c.JSON(fiber.Map{
@@ -66,22 +66,22 @@ func NewAuthRouter(router fiber.Router, appConfig *configs.Config, userService s
 
 		user, err := userService.GetByUsername(c.Context(), credential.Username)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
+			return cserrors.New(cserrors.UNAUTHORIZED, "Unauthorized")
 		}
 
 		password, err := userService.GetPasswordByID(c.Context(), user.ID)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
+			return cserrors.New(cserrors.UNAUTHORIZED, "Unauthorized")
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(password), []byte(credential.Password))
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
+			return cserrors.New(cserrors.UNAUTHORIZED, "Unauthorized")
 		}
 
 		token, err := auth.SignJWT(user, appConfig.JWTSecret)
 		if err != nil {
-			return &cserrors.Error{Code: cserrors.UNAUTHORIZED, Message: "Unauthorized"}
+			return cserrors.New(cserrors.UNAUTHORIZED, "Unauthorized")
 		}
 
 		return c.JSON(fiber.Map{

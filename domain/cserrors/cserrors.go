@@ -22,6 +22,10 @@ type Error struct {
 	Message string
 }
 
+func New(code ErrorCode, message string) *Error {
+	return &Error{Code: code, Message: message}
+}
+
 func (c *Error) Error() string {
 	return c.Code.String() + "=" + c.Message
 }
