@@ -20,6 +20,9 @@ func main() {
 	userRepo := sqlx.NewSqlxUserRepository(db)
 	userService := services.NewUserService(userRepo)
 
+	refreshTokenRepo := sqlx.NewSQLxRefreshTokenRepository(db)
+	refreshTokenService := services.NewRefreshTokenService(refreshTokenRepo)
+
 	semesterRepo := sqlx.NewSqlxSemesterRepository(db)
 	semesterService := services.NewSemesterService(semesterRepo)
 
@@ -29,7 +32,7 @@ func main() {
 
 	api := app.Group("/api/v1")
 
-	rest.NewAuthRouter(api, config, userService)
+	rest.NewAuthRouter(api, config, userService, refreshTokenService)
 
 	protectedApi := api.Group("/", middlewares.ProtectedRouteMiddleware(config.JWTSecret))
 

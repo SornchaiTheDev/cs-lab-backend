@@ -65,7 +65,7 @@ table "user_refresh_tokens" {
   column "user_id" {
     type = uuid
   }
-  column "refresh_token" {
+  column "token" {
     type = text
   }
   primary_key {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/cserrors"
+	"github.com/SornchaiTheDev/cs-lab-backend/domain/models"
 	"github.com/SornchaiTheDev/cs-lab-backend/infrastructure/auth"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -26,7 +27,18 @@ func ProtectedRouteMiddleware(secret string) func(*fiber.Ctx) error {
 		}
 
 		if claims, ok := token.Claims.(*auth.JWTClaims); ok {
-			c.Locals("user", claims)
+			roles := make([]string, len(claims.Roles))
+			for i, v := range claims.Roles {
+				roles[i] = v.(string)
+			}
+
+			c.Locals("user", &models.User{
+				ID:           claims.Subject,
+				DisplayName:  claims.DisplayName,
+				ProfileImage: claims.ProfileImage,
+				Roles:        roles,
+			})
+
 			return c.Next()
 		}
 

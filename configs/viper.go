@@ -13,6 +13,7 @@ type Config struct {
 	GoogleClientID     string `mapstructure:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string `mapstructure:"GOOGLE_CLIENT_SECRET"`
 	JWTSecret          string `mapstructure:"JWT_SECRET"`
+	JWTRefreshSecret   string `mapstructure:"JWT_REFRESH_SECRET"`
 }
 
 func NewConfig() *Config {
