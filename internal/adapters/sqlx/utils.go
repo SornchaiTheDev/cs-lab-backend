@@ -1,26 +1,26 @@
 package sqlx
 
 import (
-	"errors"
 	"fmt"
+	"log"
 	"reflect"
 	"regexp"
 	"strings"
 )
 
-func getUpdateFields(s any) (string, error) {
+func getUpdateFields(s any) string {
 	typ := reflect.TypeOf(s)
 
 	if typ.Kind() != reflect.Pointer {
 		if typ.Elem().Kind() != reflect.Struct {
-			return "", errors.New("The argument that you passed is not a struct")
+			log.Fatalln("The argument that you passed is not a struct")
 		}
-		return "", errors.New("The argument that you passed is not a pointer")
+		log.Fatalln("The argument that you passed is not a pointer")
 	}
 
 	fields := getAllStructFields(s)
 
-	return strings.Join(fields, ","), nil
+	return strings.Join(fields, ",")
 }
 
 func getAllStructFields(s any) []string {

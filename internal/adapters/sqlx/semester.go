@@ -104,10 +104,7 @@ func (r *sqlxSemesterRepository) GetByID(ctx context.Context, ID string) (*model
 }
 
 func (r *sqlxSemesterRepository) UpdateByID(ctx context.Context, ID string, sem *requests.Semester) (*models.Semester, error) {
-	updateFields, err := getUpdateFields(sem)
-	if err != nil {
-		return nil, err
-	}
+	updateFields := getUpdateFields(sem)
 
 	query := fmt.Sprintf(`
 	UPDATE semesters

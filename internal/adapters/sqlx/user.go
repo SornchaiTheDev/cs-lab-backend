@@ -2,9 +2,12 @@ package sqlx
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/SornchaiTheDev/cs-lab-backend/domain/cserrors"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/models"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/repositories"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/requests"
@@ -29,6 +32,12 @@ func (r *sqlxUserRepository) GetByEmail(ctx context.Context, email string) (*mod
 	var user PostgresUser
 	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE email = $1", email)
 	if err != nil {
+		var e *pq.Error
+		if errors.As(err, &e) {
+			if e.Code == "22P02" {
+				return nil, cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "User not found")
+			}
+		}
 		return nil, err
 	}
 
@@ -52,6 +61,41 @@ func (r *sqlxUserRepository) GetByUsername(ctx context.Context, username string)
 	var user PostgresUser
 	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE username = $1", username)
 	if err != nil {
+		var e *pq.Error
+		if errors.As(err, &e) {
+			if e.Code == "22P02" {
+				return nil, cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "User not found")
+			}
+		}
+		return nil, err
+	}
+
+	return &models.User{
+		ID:           user.ID,
+		Email:        user.Email,
+		Username:     user.Username,
+		DisplayName:  user.DisplayName,
+		ProfileImage: user.ProfileImage,
+		Roles:        user.Roles,
+		RecordStatus: models.RecordStatus{
+			IsDeleted: user.IsDeleted,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+			DeletedAt: user.DeletedAt,
+		},
+	}, nil
+}
+
+func (r *sqlxUserRepository) GetByID(ctx context.Context, ID string) (*models.User, error) {
+	var user PostgresUser
+	err := r.db.Get(&user, "SELECT * FROM users WHERE id = $1", ID)
+	if err != nil {
+		var e *pq.Error
+		if errors.As(err, &e) {
+			if e.Code == "22P02" {
+				return nil, cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "User not found")
+			}
+		}
 		return nil, err
 	}
 
@@ -76,8 +120,10 @@ func (r *sqlxUserRepository) GetPasswordByID(ctx context.Context, ID string) (st
 	var password string
 
 	err := row.Scan(&password)
-
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "User not found")
+		}
 		return "", err
 	}
 
@@ -165,6 +211,12 @@ func (r *sqlxUserRepository) Create(ctx context.Context, user *requests.User) (*
 
 	err := User.StructScan(&createdUser)
 	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) {
+			if pqErr.Code == "23505" {
+				return nil, cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "User already exists")
+			}
+		}
 		return nil, err
 	}
 
@@ -200,39 +252,13 @@ func (r *sqlxUserRepository) SetPassword(ctx context.Context, username string, p
 	return nil
 }
 
-func (r *sqlxUserRepository) GetByID(ctx context.Context, ID string) (*models.User, error) {
-	var user PostgresUser
-	err := r.db.Get(&user, "SELECT * FROM users WHERE id = $1", ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &models.User{
-		ID:           user.ID,
-		Email:        user.Email,
-		Username:     user.Username,
-		DisplayName:  user.DisplayName,
-		ProfileImage: user.ProfileImage,
-		Roles:        user.Roles,
-		RecordStatus: models.RecordStatus{
-			IsDeleted: user.IsDeleted,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-			DeletedAt: user.DeletedAt,
-		},
-	}, nil
-}
-
 type updateUser struct {
 	requests.User
 	ID string `db:"id"`
 }
 
 func (r *sqlxUserRepository) Update(ctx context.Context, ID string, user *requests.User) (*models.User, error) {
-	updateFields, err := getUpdateFields(user)
-	if err != nil {
-		return nil, err
-	}
+	updateFields := getUpdateFields(user)
 
 	query := fmt.Sprintf(`
 	UPDATE users
@@ -251,6 +277,12 @@ func (r *sqlxUserRepository) Update(ctx context.Context, ID string, user *reques
 		},
 	})
 	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) {
+			if pqErr.Code == "22P02" {
+				return nil, cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "User not found")
+			}
+		}
 		return nil, err
 	}
 

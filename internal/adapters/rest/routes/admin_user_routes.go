@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"math"
 	"strconv"
 
@@ -65,6 +66,10 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 
 		user, err := userService.Create(c.Context(), &userRequest)
 		if err != nil {
+			var e *cserrors.Error
+			if errors.As(err, &e) {
+				return e
+			}
 			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error creating user")
 		}
 
@@ -86,6 +91,10 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 			Roles:       userRequest.Roles,
 		})
 		if err != nil {
+			var e *cserrors.Error
+			if errors.As(err, &e) {
+				return e
+			}
 			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error creating user")
 		}
 
@@ -102,6 +111,10 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 
 		user, err := userService.GetByID(c.Context(), userID)
 		if err != nil {
+			var e *cserrors.Error
+			if errors.As(err, &e) {
+				return e
+			}
 			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error getting user")
 		}
 
@@ -117,6 +130,10 @@ func NewAdminUserRoutes(router fiber.Router, userService services.UserService) {
 
 		user, err := userService.Update(c.Context(), c.Params("userID"), &updateUser)
 		if err != nil {
+			var e *cserrors.Error
+			if errors.As(err, &e) {
+				return e
+			}
 			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error updating user")
 		}
 
