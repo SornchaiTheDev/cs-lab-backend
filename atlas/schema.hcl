@@ -60,6 +60,24 @@ table "users" {
   }
 }
 
+table "user_refresh_tokens" {
+  schema = schema.public
+  column "user_id" {
+    type = uuid
+  }
+  column "refresh_token" {
+    type = text
+  }
+  primary_key {
+    columns = [ column.user_id ]
+  }
+  foreign_key "fk_user_id" {
+    columns = [ column.user_id ]
+    ref_columns = [ table.users.column.id ]
+    on_delete = CASCADE
+  }
+}
+
 table "user_passwords" {
   schema = schema.public
   column "user_id" {
