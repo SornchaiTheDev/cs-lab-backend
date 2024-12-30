@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"math"
 	"strconv"
 
@@ -19,6 +20,10 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 
 		createdSem, err := service.Create(c.Context(), sem)
 		if err != nil {
+			var csErr *cserrors.Error
+			if errors.As(err, &csErr) {
+				return err
+			}
 			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error creating semester")
 		}
 
@@ -66,6 +71,10 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 		semID := c.Params("semID")
 		sem, err := service.GetByID(c.Context(), semID)
 		if err != nil {
+			var csErr *cserrors.Error
+			if errors.As(err, &csErr) {
+				return err
+			}
 			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error getting semester")
 		}
 
@@ -84,6 +93,10 @@ func NewAdminSemesterRoutes(router fiber.Router, service services.SemesterServic
 
 		updateSem, err := service.UpdateByID(c.Context(), ID, &sem)
 		if err != nil {
+			var csErr *cserrors.Error
+			if errors.As(err, &csErr) {
+				return err
+			}
 			return cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Error updating semester")
 		}
 

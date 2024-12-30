@@ -2,13 +2,16 @@ package sqlx
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/SornchaiTheDev/cs-lab-backend/constants"
+	"github.com/SornchaiTheDev/cs-lab-backend/domain/cserrors"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/models"
 	"github.com/SornchaiTheDev/cs-lab-backend/domain/repositories"
 	"github.com/SornchaiTheDev/cs-lab-backend/internal/requests"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 type sqlxSemesterRepository struct {
@@ -33,6 +36,12 @@ func (r *sqlxSemesterRepository) Create(ctx context.Context, sem *requests.Semes
 	var semester models.Semester
 	err := row.StructScan(&semester)
 	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) {
+			if pqErr.Code == "23505" {
+				return nil, cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Semester already exists")
+			}
+		}
 		return nil, err
 	}
 
@@ -97,6 +106,12 @@ func (r *sqlxSemesterRepository) GetByID(ctx context.Context, ID string) (*model
 
 	err := row.StructScan(&sem)
 	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) {
+			if pqErr.Code == "22P02" {
+				return nil, cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Semester not found")
+			}
+		}
 		return nil, err
 	}
 
@@ -120,6 +135,12 @@ func (r *sqlxSemesterRepository) UpdateByID(ctx context.Context, ID string, sem 
 		Type:      constants.SemesterType(sem.Type),
 	})
 	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) {
+			if pqErr.Code == "22P02" {
+				return nil, cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "Semester not found")
+			}
+		}
 		return nil, err
 	}
 
