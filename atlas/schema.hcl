@@ -165,6 +165,22 @@ table "sections" {
   column "semester_id" {
     type = uuid
   }
+  column "created_at" {
+    type = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "updated_at" {
+    type = timestamp
+    default = sql("CURRENT_TIMESTAMP")
+  }
+  column "is_deleted" {
+    type = boolean
+    default = false
+  }
+  column "deleted_at" {
+    type = timestamp
+    null = true
+  }
   primary_key  {
     columns = [ column.id ]
   }
@@ -176,8 +192,10 @@ table "sections" {
     columns = [ column.semester_id  ]
     ref_columns = [ table.semesters.column.id ]
   }
-    unique "name_course_id" {
-    columns = [ column.name,column.course_id ]
+  index "unique_active_section" {
+    columns = [ column.name, column.course_id, column.semester_id ]
+    where = "is_deleted = false"
+    unique = true
   }
 }
 
