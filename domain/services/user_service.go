@@ -16,7 +16,6 @@ type UserService interface {
 	GetByID(ctx context.Context, ID string) (*models.User, error)
 	GetPasswordByID(ctx context.Context, ID string) (string, error)
 	GetPagination(ctx context.Context, page int, limit int, search string, sortBy string, sortOrder string) ([]models.User, error)
-	GetRefreshToken(ctx context.Context, ID string) (string, error)
 	Count(ctx context.Context, search string) (int, error)
 	Create(ctx context.Context, user *requests.User) (*models.User, error)
 	SetPassword(ctx context.Context, username string, password string) error
@@ -58,10 +57,6 @@ func (s *userService) GetPagination(ctx context.Context, page int, limit int, se
 
 	return s.userRepository.GetPagination(ctx, page, limit, search, sanitizedSortBy, sanitizedSortOrder)
 
-}
-
-func (s *userService) GetRefreshToken(ctx context.Context, ID string) (string, error) {
-	return s.userRepository.GetRefreshToken(ctx, ID)
 }
 
 func (s *userService) Count(ctx context.Context, search string) (int, error) {

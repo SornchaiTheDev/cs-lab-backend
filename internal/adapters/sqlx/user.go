@@ -115,21 +115,6 @@ func (r *sqlxUserRepository) GetByID(ctx context.Context, ID string) (*models.Us
 	}, nil
 }
 
-func (r *sqlxUserRepository) GetRefreshToken(ctx context.Context, ID string) (string, error) {
-	row := r.db.QueryRowContext(ctx, "SELECT token FROM user_refresh_tokens WHERE user_id = $1", ID)
-	var refreshToken string
-
-	err := row.Scan(&refreshToken)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return "", cserrors.New(cserrors.INTERNAL_SERVER_ERROR, "User not found")
-		}
-		return "", err
-	}
-
-	return refreshToken, nil
-}
-
 func (r *sqlxUserRepository) GetPasswordByID(ctx context.Context, ID string) (string, error) {
 	row := r.db.QueryRowContext(ctx, "SELECT password FROM user_passwords WHERE user_id = $1", ID)
 	var password string
