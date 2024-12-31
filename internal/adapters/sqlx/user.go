@@ -30,7 +30,7 @@ type PostgresUser struct {
 
 func (r *sqlxUserRepository) GetByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user PostgresUser
-	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE email = $1", email)
+	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE email = $1 AND is_deleted = false", email)
 	if err != nil {
 		var e *pq.Error
 		if errors.As(err, &e) {
@@ -59,7 +59,7 @@ func (r *sqlxUserRepository) GetByEmail(ctx context.Context, email string) (*mod
 
 func (r *sqlxUserRepository) GetByUsername(ctx context.Context, username string) (*models.User, error) {
 	var user PostgresUser
-	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE username = $1", username)
+	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE username = $1 AND is_deleted = false", username)
 	if err != nil {
 		var e *pq.Error
 		if errors.As(err, &e) {
@@ -88,7 +88,7 @@ func (r *sqlxUserRepository) GetByUsername(ctx context.Context, username string)
 
 func (r *sqlxUserRepository) GetByID(ctx context.Context, ID string) (*models.User, error) {
 	var user PostgresUser
-	err := r.db.Get(&user, "SELECT * FROM users WHERE id = $1", ID)
+	err := r.db.Get(&user, "SELECT * FROM users WHERE id = $1 AND is_deleted = false", ID)
 	if err != nil {
 		var e *pq.Error
 		if errors.As(err, &e) {
