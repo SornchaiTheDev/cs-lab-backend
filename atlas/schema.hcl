@@ -102,6 +102,9 @@ table "courses" {
     type = uuid
     default = sql("gen_random_uuid()")
   }
+  column "code" {
+    type = varchar(8)
+  }
   column "name" {
     type = text
   }
@@ -110,9 +113,11 @@ table "courses" {
   }
   column "created_at" {
     type = timestamp
+    default = sql("CURRENT_TIMESTAMP")
   }
   column "updated_at" {
     type = timestamp
+    default = sql("CURRENT_TIMESTAMP")
   }
   column "is_deleted" {
     type = boolean

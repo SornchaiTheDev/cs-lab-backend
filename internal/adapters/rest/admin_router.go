@@ -7,9 +7,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewAdminRouter(router fiber.Router, userService services.UserService, semesterService services.SemesterService) {
-	adminRouter := router.Group("/admin", middlewares.AdminMiddleware)
+type AdminRouter struct {
+	Router          fiber.Router
+	UserService     services.UserService
+	SemesterService services.SemesterService
+	CourseService   services.CourseService
+}
 
-	routes.NewAdminUserRoutes(adminRouter, userService)
-	routes.NewAdminSemesterRoutes(adminRouter, semesterService)
+func NewAdminRouter(r *AdminRouter) {
+	adminRouter := r.Router.Group("/admin", middlewares.AdminMiddleware)
+
+	routes.NewAdminUserRoutes(adminRouter, r.UserService)
+	routes.NewAdminSemesterRoutes(adminRouter, r.SemesterService)
+	routes.NewAdminCourseRoutes(adminRouter, r.CourseService)
 }

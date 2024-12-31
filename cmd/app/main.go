@@ -26,6 +26,9 @@ func main() {
 	semesterRepo := sqlx.NewSqlxSemesterRepository(db)
 	semesterService := services.NewSemesterService(semesterRepo)
 
+	courseRepo := sqlx.NewSqlxCourseRepository(db)
+	courseService := services.NewCourseService(courseRepo)
+
 	app := fiber.New(fiber.Config{
 		ErrorHandler: middlewares.ErrorHandler,
 	})
@@ -36,7 +39,12 @@ func main() {
 
 	protectedApi := api.Group("/", middlewares.ProtectedRouteMiddleware(config.JWTSecret))
 
-	rest.NewAdminRouter(protectedApi, userService, semesterService)
+	rest.NewAdminRouter(&rest.AdminRouter{
+		Router:          protectedApi,
+		UserService:     userService,
+		SemesterService: semesterService,
+		CourseService:   courseService,
+	})
 
 	port := fmt.Sprintf(":%v", config.Port)
 
