@@ -100,7 +100,7 @@ func (r *sqlxSemesterRepository) Count(ctx context.Context, search string) (int,
 }
 
 func (r *sqlxSemesterRepository) GetByID(ctx context.Context, ID string) (*models.Semester, error) {
-	row := r.db.QueryRowxContext(ctx, "SELECT * FROM semesters WHERE id = $1", ID)
+	row := r.db.QueryRowxContext(ctx, "SELECT * FROM semesters WHERE id = $1 AND is_deleted = false", ID)
 
 	var sem models.Semester
 
