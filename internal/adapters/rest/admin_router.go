@@ -12,6 +12,7 @@ type AdminRouter struct {
 	UserService     services.UserService
 	SemesterService services.SemesterService
 	CourseService   services.CourseService
+	SectionService  services.SectionService
 }
 
 func NewAdminRouter(r *AdminRouter) {
@@ -20,4 +21,5 @@ func NewAdminRouter(r *AdminRouter) {
 	routes.NewAdminUserRoutes(adminRouter, r.UserService)
 	routes.NewAdminSemesterRoutes(adminRouter, r.SemesterService)
 	routes.NewAdminCourseRoutes(adminRouter, r.CourseService)
+	routes.NewAdminSectionRoutes(adminRouter, r.SectionService)
 }

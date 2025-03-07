@@ -29,6 +29,9 @@ func main() {
 	courseRepo := sqlx.NewSqlxCourseRepository(db)
 	courseService := services.NewCourseService(courseRepo)
 
+	sectionRepo := sqlx.NewSqlxSectionRepository(db)
+	sectionService := services.NewSectionService(sectionRepo)
+
 	app := fiber.New(fiber.Config{
 		ErrorHandler: middlewares.ErrorHandler,
 	})
@@ -44,6 +47,7 @@ func main() {
 		UserService:     userService,
 		SemesterService: semesterService,
 		CourseService:   courseService,
+		SectionService:  sectionService,
 	})
 
 	port := fmt.Sprintf(":%v", config.Port)
